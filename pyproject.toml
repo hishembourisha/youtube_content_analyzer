@@ -1,0 +1,11 @@
+[project]
+name = "cloud37-challenge"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "dotenv>=0.9.9",
+    "openai>=1.107.3",
+    "streamlit>=1.49.1",
+]
