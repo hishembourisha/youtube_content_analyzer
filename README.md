@@ -12,52 +12,73 @@ A streamlit based application that downloads YouTube videos, extracts audio, tra
 - **Interactive UI**: Clean Streamlit interface for easy video processing
 - **Export Options**: Generate markdown reports with structured analysis
 
-## Prerequisites
+## Prerequisites (Windows)
 
 Before you begin, ensure you have the following installed:
 
 - **Python 3.8+**
+- **UV** (modern Python package manager)
 - **FFmpeg** (for audio extraction)
 - **OpenAI API Key** (for transcription and analysis)
 
-### Installing FFmpeg
+### Installing UV
 
-#### Windows
-1. Download from [FFmpeg official website](https://ffmpeg.org/download.html)
-2. Extract and add to your PATH environment variable
-3. Or use Chocolatey: `choco install ffmpeg`
+UV is a fast Python package manager that replaces pip and virtualenv.
 
-#### macOS
-```bash
-brew install ffmpeg
+1. **Install UV using PowerShell**:
+```powershell
+# Using PowerShell (recommended)
+powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
 ```
 
-#### Linux (Ubuntu/Debian)
-```bash
-sudo apt update
-sudo apt install ffmpeg
+2. **Restart your PowerShell/Command Prompt** after installation
+
+3. **Verify installation**:
+```powershell
+uv --version
+```
+
+### Installing FFmpeg
+
+#### Option 1: Using Chocolatey (Recommended)
+```powershell
+# Install Chocolatey first (if not installed)
+Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+
+# Install FFmpeg
+choco install ffmpeg
+```
+
+#### Option 2: Manual Installation
+1. Download from [FFmpeg official website](https://ffmpeg.org/download.html)
+2. Extract to `C:\ffmpeg`
+3. Add `C:\ffmpeg\bin` to your PATH environment variable:
+   - Press `Win + R`, type `sysdm.cpl`, press Enter
+   - Click "Environment Variables"
+   - Under "System Variables", find and select "Path", click "Edit"
+   - Click "New" and add `C:\ffmpeg\bin`
+   - Click "OK" on all dialogs
+
+4. **Verify installation**:
+```powershell
+ffmpeg -version
 ```
 
 ## Installation
 
 1. **Clone the repository**
-```bash
-git clone https://github.com/your-username/youtube-video-analyzer.git
-cd youtube-video-analyzer
+```powershell
+git clone https://github.com/hishembourisha/youtube_content_analyzer.git
+cd youtube_content_analyzer
 ```
 
-2. **Create a virtual environment**
-```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+2. **Install dependencies using UV**
+```powershell
+# This creates a virtual environment and installs all dependencies
+uv sync
 ```
 
-3. **Install dependencies**
-```bash
-pip install -r requirements.txt
-```
-
-4. **Set up environment variables**
+3. **Set up environment variables**
 Create a `.env` file in the project root:
 ```env
 OPENAI_API_KEY=your_openai_api_key_here
@@ -66,7 +87,7 @@ OPENAI_API_KEY=your_openai_api_key_here
 ## Project Structure
 
 ```
-youtube-video-analyzer/
+youtube-content-analyzer/
 ├── src/
 │   ├── data_pipeline/
 │   │   ├── __init__.py
@@ -92,9 +113,8 @@ youtube-video-analyzer/
 ├── .gitignore
 ├── .python-version
 ├── README.md
-├── pyproject.toml
-└── uv.lock
-
+├── pyproject.toml               # Project dependencies and config
+└── uv.lock                      # Locked dependency versions
 ```
 
 ## Usage
@@ -102,8 +122,8 @@ youtube-video-analyzer/
 ### Option 1: Web Interface (Recommended)
 
 1. **Start the Streamlit app**
-```bash
-streamlit run src/app.py
+```powershell
+uv run streamlit run src/app.py
 ```
 
 2. **Open your browser** to `http://localhost:8501`
@@ -117,41 +137,56 @@ streamlit run src/app.py
 ### Option 2: Command Line Interface
 
 #### Basic Pipeline
-```bash
-cd src
-python -m data_pipeline.data_pipeline
+```powershell
+uv run python src/data_pipeline/data_pipeline.py
 # Enter YouTube URL when prompted
 ```
 
 #### Content Analysis
-```bash
-cd src
-python -m processing_agent.content_extractor
+```powershell
+uv run python src/processing_agent/content_extractor.py
 ```
 
 #### Individual Components
-```bash
+```powershell
 # Download only
-python -m data_pipeline.downloader
+uv run python src/data_pipeline/downloader.py
 
 # Extract audio only
-python -m data_pipeline.video_to_audio
+uv run python src/data_pipeline/video_to_audio.py
 
 # Transcribe only
-python -m data_pipeline.transcribe_audio
+uv run python src/data_pipeline/transcribe_audio.py
 ```
 
-## Requirements
+## Dependencies Management with UV
 
-Create a `requirements.txt` file with:
+### Adding New Dependencies
+```powershell
+# Add a new package
+uv add package-name
 
-```txt
-streamlit>=1.28.0
-yt-dlp>=2023.9.24
-openai>=1.3.0
-python-dotenv>=1.0.0
-pathlib>=1.0.1
-asyncio-extras>=1.3.2
+# Add a development dependency
+uv add --dev package-name
+
+# Add a specific version
+uv add "package-name==1.0.0"
+```
+
+### Updating Dependencies
+```powershell
+# Update all dependencies
+uv sync --upgrade
+
+# Update a specific package
+uv add "package-name@latest"
+```
+
+### Running Commands
+```powershell
+# Run any command in the virtual environment
+uv run python script.py
+uv run streamlit run app.py
 ```
 
 ## API Keys Setup
@@ -229,14 +264,23 @@ Key points from the introduction section...
 Description of the main content discussed...
 ```
 
-## Troubleshooting
+## Troubleshooting (Windows)
 
 ### Common Issues
 
+**UV not found**
+```powershell
+# Restart PowerShell after installation
+# Or manually add UV to PATH
+```
+
 **FFmpeg not found**
-```bash
+```powershell
 # Verify FFmpeg installation
 ffmpeg -version
+
+# If not found, check PATH environment variable
+echo $env:PATH
 ```
 
 **OpenAI API errors**
@@ -247,12 +291,13 @@ ffmpeg -version
 **YouTube download fails**
 - Check if URL is valid and public
 - Some videos may be region-restricted
-- Ensure yt-dlp is up to date: `pip install --upgrade yt-dlp`
+- Update yt-dlp: `uv add "yt-dlp@latest"`
 
-**Large video processing**
-- Videos over 25MB may take longer to process
-- Consider using shorter clips for testing
-- Ensure sufficient disk space
+**PowerShell execution policy issues**
+```powershell
+# If you get execution policy errors
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+```
 
 ### Debug Mode
 Enable verbose logging by modifying the pipeline:
@@ -269,7 +314,7 @@ ydl_opts = {
 Modify `utils/path_utils.py` to change default directories:
 ```python
 # Custom base directory
-BASE = "/your/custom/path/outputs"
+BASE = r"C:\your\custom\path\outputs"
 ```
 
 ### Transcription Settings
@@ -288,9 +333,10 @@ transcription = client.audio.transcriptions.create(
 
 1. Fork the repository
 2. Create a feature branch: `git checkout -b feature-name`
-3. Commit changes: `git commit -am 'Add feature'`
-4. Push to branch: `git push origin feature-name`
-5. Submit a Pull Request
+3. Make changes and test with: `uv sync`
+4. Commit changes: `git commit -am 'Add feature'`
+5. Push to branch: `git push origin feature-name`
+6. Submit a Pull Request
 
 ## License
 
@@ -302,12 +348,12 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [yt-dlp](https://github.com/yt-dlp/yt-dlp) for YouTube downloading
 - [Streamlit](https://streamlit.io/) for the web interface
 - [FFmpeg](https://ffmpeg.org/) for audio processing
+- [Astral](https://astral.sh/) for UV package manager
 
 ## Support
 
-- Create an [Issue](https://github.com/your-username/youtube-video-analyzer/issues) for bugs
-- Check [Discussions](https://github.com/your-username/youtube-video-analyzer/discussions) for questions
-- Review the [Wiki](https://github.com/your-username/youtube-video-analyzer/wiki) for additional documentation
+- Create an [Issue](https://github.com/hishembourisha/youtube_content_analyzer/issues) for bugs
+- Check [Discussions](https://github.com/hishembourisha/youtube_content_analyzer/discussions) for questions
 
 ---
 
